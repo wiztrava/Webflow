@@ -1,42 +1,102 @@
-Webflow
-Introduction
+[![Revved up by Develocity](https://img.shields.io/badge/Revved%20up%20by-Develocity-06A0CE?logo=Gradle&labelColor=02303A)](https://ge.spring.io/scans?search.rootProjectNames=webflow)
 
-Webflow is a visual web development platform that enables IT professionals to design, build, and maintain responsive websites through a graphical interface while retaining control over the underlying HTML, CSS, and JavaScript. It combines a visual design environment, a content management system (CMS), hosting capabilities, and tools for publishing websites without requiring developers to implement every layout or component manually.
+# Overview
 
-The platform represents website structure through elements arranged in a hierarchical layout. Users can configure containers, sections, grids, flexbox layouts, typography, spacing, colors, and responsive behavior using a visual editor. These settings correspond to web technologies, allowing developers to apply established frontend development principles without writing all presentation code directly.
+Spring Web Flow facilitates building web applications that require guided navigation -- 
+e.g. a shopping cart, flight check-in, a loan application, and many others. 
+In contrast to stateless, free-form navigation such use cases have a clear start and end
+point, one or more screens to go through in a specific order, and a set of changes
+that are not finalized to the end.
 
-Webflow supports reusable CSS classes, component-based design, and responsive breakpoints. These features help maintain consistent interfaces across multiple pages and screen sizes. Developers can create shared navigation bars, footers, buttons, and other interface elements, then update them centrally to reduce duplicated work.
+A distinguishing feature is the ability to define a **flow definition** consisting of
+*states*, *transitions*, and *data*. For example, view states correspond to the
+individual screens of the flow while transitions are caused by events resulting from
+the click of a button or a link. Data may be stored in scopes such as
+*flash*, *view*, *flow*, and others. Scoped data is cleared when it is no longer in scope.
 
-The built-in CMS supports structured content such as blog posts, articles, product descriptions, author profiles, and project portfolios. Content is stored in collections with defined fields and can be displayed through dynamic templates. This approach separates content management from page layout, making websites easier to update as information changes.
+In REST terms a flow represents as a single resource. 
+The same URL used to start the flow is also the URL used to step through the flow
+(there is also an execution key uniquely identifying the current flow instance).
+As a result of this approach navigation remains encapsulated in the flow definition.
 
-Webflow also provides publishing workflows, custom domain configuration, form handling, and integrations with external services. Depending on project requirements, developers can extend website functionality with custom code, embedded scripts, and third-party APIs.
+Some key benefits of using Spring Web Flow:
 
-Typical use cases include corporate websites, marketing landing pages, technical blogs, documentation portals, and content-driven business websites. Effective implementation requires planning the site's structure, defining reusable styles, validating responsive layouts, and testing functionality before publication.
++ A flow abstraction to model *"long conversations"* in web applications
++ Proper encapsulation for navigation rules
++ Multiple scopes in which to keep data
++ Automatic use of the POST/REDIRECT/GET pattern to avoid browser warnings
++ Impossible to return to completed flow sessions via browser back button
++ Rapid prototyping of flow requirements
++ Development mode in which flow definition changes are detected on the fly
++ IDE visualization for flow definitions
++ Much more...
 
-Building Responsive Layouts and Reusable Components
+# Documentation
 
-A reliable Webflow project starts with a consistent layout system. Before constructing individual pages, define the main content width, spacing scale, typography hierarchy, color palette, and naming conventions for CSS classes. This reduces visual inconsistencies and makes later modifications easier to manage.
+See the current 
+[Javadoc](https://docs.spring.io/spring-webflow/docs/current/api/) and 
+[Reference](https://docs.spring.io/spring-webflow/docs/current/reference/html/) docs.
 
-The Designer provides layout controls based on CSS concepts such as block flow, flexbox, and CSS Grid. Use flexbox for one-dimensional arrangements, including navigation menus, horizontal button groups, and vertically aligned content. Use grid when elements must occupy multiple rows and columns, such as feature cards or dashboard-style content sections.
+# Samples
 
-For example, a service page might contain a centered container, a two-column hero section, and a grid of three feature cards. Assign reusable classes such as container-main, hero-section, and feature-card. Configure the container's maximum width and horizontal padding once, then apply it across pages. When the design changes, updating the shared class adjusts all associated elements.
+Samples can be found in the
+[spring-webflow-samples](https://github.com/SpringSource/spring-webflow-samples) repository.
 
-Responsive behavior should be tested at desktop, tablet, and mobile breakpoints. Avoid relying exclusively on fixed pixel widths because they can cause overflow on smaller screens. Prefer flexible widths, appropriate maximum widths, and grid or flexbox configurations that adapt to available space. At a mobile breakpoint, a two-column hero can become a single-column layout, while navigation links can be replaced by a compact menu.
+## Code of Conduct
+This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.adoc).
+By participating, you  are expected to uphold this code.
+Please report unacceptable behavior to spring-code-of-conduct@spring.io.
 
-Reusable components are particularly useful for headers, footers, calls to action, and repeated interface patterns. When a component is shared across multiple pages, centralizing its structure reduces maintenance effort. However, verify component properties and page-specific content before applying global changes.
+# Downloading artifacts
 
-Before publishing, inspect text wrapping, image cropping, keyboard focus, button states, and horizontal overflow. These checks help identify layout defects that may not appear in the primary desktop view.
+Download [instructions](https://github.com/SpringSource/spring-webflow/wiki/Downloading-Spring-Web-Flow-Artifacts)
+for Spring Web Flow artifacts via Maven and other build systems are available via the project wiki.
 
-Managing Dynamic Content and Publishing Websites
+# Getting support
 
-Webflow's CMS is designed for websites where multiple pages follow a common content structure. Instead of creating every article or project page independently, define a collection with fields such as title, summary, publication date, author, thumbnail, and body content. Each collection item becomes a record that can populate a shared template.
+Please, use the [spring-webflow](https://stackoverflow.com/questions/tagged/spring-webflow) tag on StackOverflow.
+[Commercial support](https://tanzu.vmware.com/spring-runtime) is available too.
 
-For example, a technical blog can use an Articles collection. An editor creates a new item, enters the article information, selects an author, and uploads an image. A collection list displays published articles on the blog index, while a collection template renders the full article page. Adding another article therefore requires content entry rather than rebuilding the page layout.
+# Building from source
 
-When designing collections, choose field types according to how the information will be used. Plain text fields are suitable for short labels, rich text fields support formatted article content, and reference fields connect related records, such as articles and authors. Define clear field names and establish consistent content-entry rules to prevent incomplete records and inconsistent formatting.
+Check out sources:
+````
+git clone git://github.com/spring-projects/spring-webflow.git
+````
 
-Publishing should follow a controlled workflow. Prepare the page structure, verify CMS bindings, test navigation and forms, and review responsive behavior before deploying changes. Where staging or preview environments are available, use them to validate modifications before updating the production website. Confirm that the intended domain, publication settings, and page visibility are correct.
+Compile and test, build all jars, distribution zips and docs:
+````
+./gradlew build
+````
 
-Custom domains require appropriate DNS configuration, including the records specified by the hosting setup. After connecting a domain, verify that the site loads correctly over HTTPS and that redirects behave as expected. Also check page titles, meta descriptions, canonical settings where applicable, and image alternative text.
+Install into your local Maven repository:
+````
+./gradlew install
+````
 
-For operational maintenance, periodically review CMS content, broken internal links, form submissions, third-party integrations, and website performance. If custom JavaScript or embedded services are used, test them after significant layout or publishing changes. Documenting collection schemas, class naming conventions, and deployment responsibilities helps teams maintain the site consistently as the project evolves.
+Generate Eclipse settings and then manually import projects:
+````
+./import-into-eclipse.sh
+````
+
+The Spring Framework and Spring Web Flow use a very similar build system.
+For this reason the following
+[Gradle build FAQ](https://github.com/SpringSource/spring-framework/wiki/Gradle-build-and-release-FAQ)
+would be a very useful read.
+
+# Contributing
+
+[Pull requests](https://help.github.com/send-pull-requests) are welcome.
+You'll be asked to sign our contributor license agreement ([CLA](https://support.springsource.com/spring_committer_signup)).
+Trivial changes like typo fixes are especially appreciated
+(just [fork and edit](https://github.com/blog/844-forking-with-the-edit-button)!).
+For larger changes, please search through JIRA for similiar issues,
+creating a new one if necessary, and discuss your ideas with the Spring Web Flow team.
+
+# License
+
+Spring Web Flow is released under version 2.0 of the
+[Apache License](https://www.apache.org/licenses/LICENSE-2.0).
+
+
+

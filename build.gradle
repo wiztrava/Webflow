@@ -1,0 +1,156 @@
+plugins {
+	id 'io.spring.dependency-management' version '1.1.7' apply false
+	id "org.asciidoctor.jvm.convert" version "4.0.5"
+	id "org.asciidoctor.jvm.pdf" version "4.0.5"
+	id 'de.undercouch.download' version '4.1.2'
+}
+
+ext {
+	moduleProjects = subprojects.findAll { it.name.startsWith("spring-") }
+	javaProjects = subprojects - project("spring-js-resources")
+}
+
+allprojects {
+	group = "org.springframework.webflow"
+
+	apply plugin: "java-library"
+	apply plugin: "io.spring.dependency-management"
+	apply plugin: "org.springframework.build.optional-dependencies"
+	apply from: "${rootProject.projectDir}/ide.gradle"
+	apply from: "${rootDir}/gradle/publications.gradle"
+
+	dependencyManagement {
+		imports {
+			mavenBom "org.springframework:spring-framework-bom:${springFrameworkVersion}"
+			mavenBom "org.springframework.security:spring-security-bom:7.0.6"
+			mavenBom "org.junit:junit-bom:6.0.1"
+		}
+		dependencies {
+			dependency "jakarta.servlet:jakarta.servlet-api:6.1.0"
+			dependency "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2"
+			dependency "jakarta.servlet.jsp:jakarta.servlet.jsp-api:4.0.0"
+			dependency "jakarta.el:jakarta.el-api:5.0.1"
+
+			dependency "org.glassfish:jakarta.faces:4.1.4"
+			dependency "org.apache.myfaces.core:myfaces-impl:4.1.2"
+			dependency "org.apache.myfaces.core:myfaces-test:4.1.2"
+			dependency "jakarta.enterprise:jakarta.enterprise.cdi-api:4.1.0"
+			dependency "jakarta.enterprise:jakarta.enterprise.cdi-el-api:4.1.0"
+
+			dependency "jakarta.validation:jakarta.validation-api:3.1.0"
+			dependency "org.hibernate.validator:hibernate-validator:9.1.0.Final"
+
+			dependency "org.hibernate.orm:hibernate-core:7.2.0.CR1"
+
+			dependencySet(group: 'org.apache.logging.log4j', version: '2.25.2') {
+				entry 'log4j-api'
+				entry 'log4j-core'
+				entry 'log4j-slf4j-impl'
+				entry 'log4j-jul'
+			}
+			dependency "org.slf4j:slf4j-api:2.0.17"
+
+			dependency("junit:junit:4.13.2")
+			dependency "org.easymock:easymock:5.6.0"
+			dependency "org.hamcrest:hamcrest:3.0"
+			dependency "org.apache.tomcat:tomcat-jasper-el:10.1.31"
+			dependency "org.hsqldb:hsqldb:2.7.3"
+
+			/*
+			dependency "org.apache.myfaces.test:myfaces-test22:1.0.8"
+			*/
+		}
+		generatedPomCustomization {
+			enabled = false
+		}
+		resolutionStrategy {
+			cacheChangingModulesFor 0, "seconds"
+		}
+	}
+	repositories {
+		mavenCentral()
+		if (version.endsWith('SNAPSHOT')) {
+			maven {
+				url = "https://repo.spring.io/snapshot"
+			}
+		}
+		// For Spring Framework 6 milestones
+		maven {
+			url = "https://repo.spring.io/milestone"
+		}
+	}
+	configurations.all {
+		resolutionStrategy {
+			cacheChangingModulesFor 0, "seconds"
+			cacheDynamicVersionsFor 0, "seconds"
+		}
+	}
+
+}
+
+configure(javaProjects) { javaProject ->
+
+	test {
+		useJUnitPlatform()
+		include(["**/*Tests.class", "**/*Test.class"])
+		systemProperty("java.awt.headless", "true")
+		systemProperty("testGroups", project.properties.get("testGroups"))
+	}
+
+	javadoc {
+		options.memberLevel = JavadocMemberLevel.PROTECTED
+		options.author = true
+		options.header = project.name
+	}
+
+	task sourcesJar(type: Jar, dependsOn:classes) {
+		archiveClassifier = "sources"
+		from sourceSets.main.allJava
+	}
+
+	task javadocJar(type: Jar) {
+		archiveClassifier = "javadoc"
+		from javadoc
+	}
+
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				from components.java
+				artifact sourcesJar
+				artifact javadocJar
+			}
+		}
+	}
+}
+
+subprojects { subproject ->
+
+	java {
+		toolchain {
+			languageVersion = JavaLanguageVersion.of(17)
+		}
+	}
+
+	[compileJava, compileTestJava]*.options*.compilerArgs = ["-Xlint:none"]
+
+	sourceSets.test.resources.srcDirs = ["src/main/java", "src/test/resources", "src/test/java"]
+
+	jar {
+		manifest.attributes["Implementation-Title"] = subproject.name
+		manifest.attributes["Implementation-Version"] = subproject.version
+
+		from("${rootProject.projectDir}/src/dist") {
+			include "license.txt"
+			include "notice.txt"
+			into "META-INF"
+			expand(copyright: new Date().format("yyyy"), version: project.version)
+		}
+	}
+}
+
+configure(rootProject) {
+	description = "Spring Web Flow"
+
+	apply from: "${rootDir}/gradle/docs.gradle"
+}
